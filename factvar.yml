@@ -1,0 +1,14 @@
+---
+- name: Provisioning server
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install NTP on Centos
+      yum:
+         name: ntp
+         state: present
+    
+    - name: Install NTP on ubuntu
+      apt:
+         name: ntp
+         state: present

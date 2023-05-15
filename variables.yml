@@ -1,0 +1,71 @@
+---
+- name: Setup Webserver
+  hosts: websrvgrp
+  become: yes
+#  vars:
+#    dbname: PovDB
+#    dbuser: povilas
+#    dbpass: povilas
+  tasks:
+# debug options:  
+    - debug:
+        var: dbname
+
+    - debug:
+        msg: "Value of dbuser is {{dbuser}}"  
+    
+    - name: Install Apche httpd
+      yum: 
+        name: httpd
+        state: present
+    
+    - name: Start and enable httpd
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+    
+    - name: Copy index file
+      copy:
+        src: index.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: 0644
+        backup: yes
+
+
+- name: Setup DBserver
+  hosts: dbsrvgrp
+  become: yes
+#  vars:
+#      dbname: PovDB
+#      dbuser: povilas
+#      dbpass: povilas
+  tasks:
+    - name: Install MySQL server
+      yum: 
+        name: mariadb-server
+        state: present
+    
+    - name: Install python2
+      yum: 
+        name: python2-PyMySQL
+        state: present    
+    
+    - name: Start and enable httpd
+      service:
+        name: mariadb
+        state: started
+        enabled: yes
+    
+    - name: Create a new DB called PovDB
+      mysql_db:
+        name: "{{dbname}}"
+        state: present
+    
+    - name: Create DB user
+      mysql_user:
+        name: "{{dbuser}}"
+        password: "{{dbpass}}"
+        priv: '*.*:ALL'          
